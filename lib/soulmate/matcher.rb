@@ -3,14 +3,14 @@ module Soulmate
   class Matcher < Base
 
     def matches_for_term(term, options = {})
-      options = { :limit => 5, :cache => true, :offset => 0, :phrase => false }.merge(options)
+      options = { :limit => 5, :cache => true, :offset => 0, :phrase => false}.merge(options)
 
       words = if options[:phrase]
+        [normalize(term)]
+      else
         normalize(term).split(' ').reject do |w|
           w.size < Soulmate.min_complete or Soulmate.stop_words.include?(w)
         end.sort
-      else
-        [term]
       end
 
       return [] if words.empty?

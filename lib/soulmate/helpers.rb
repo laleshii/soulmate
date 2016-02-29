@@ -5,7 +5,7 @@ module Soulmate
 
     def prefixes_for_phrase(phrase, use_phrase = false)
       words = if use_phrase
-        [phrase]
+        [normalize(phrase)]
       else
         normalize(phrase).split(' ').reject do |w|
           Soulmate.stop_words.include?(w)
