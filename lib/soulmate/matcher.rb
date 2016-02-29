@@ -6,7 +6,7 @@ module Soulmate
       options = { :limit => 5, :cache => true, :offset => 0, :phrase => false}.merge(options)
 
       words = if options[:phrase]
-        [normalize(term)]
+        [term.downcase]
       else
         normalize(term).split(' ').reject do |w|
           w.size < Soulmate.min_complete or Soulmate.stop_words.include?(w)
