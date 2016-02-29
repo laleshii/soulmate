@@ -3,11 +3,15 @@ module Soulmate
   class Matcher < Base
 
     def matches_for_term(term, options = {})
-      options = { :limit => 5, :cache => true, :offset => 0 }.merge(options)
-      
-      words = normalize(term).split(' ').reject do |w|
-        w.size < Soulmate.min_complete or Soulmate.stop_words.include?(w)
-      end.sort
+      options = { :limit => 5, :cache => true, :offset => 0, :phrase => false }.merge(options)
+
+      words = if options[:phrase]
+        normalize(term).split(' ').reject do |w|
+          w.size < Soulmate.min_complete or Soulmate.stop_words.include?(w)
+        end.sort
+      else
+        [term]
+      end
 
       return [] if words.empty?
 
@@ -19,7 +23,7 @@ module Soulmate
         Soulmate.redis.expire(cachekey, 10 * 60) # expire after 10 minutes
       end
 
-      ids = Soulmate.redis.zrevrange(cachekey, options[:offset], options[:limit] - 1)
+      ids = Soulmate.redis.zrange(cachekey, options[:offset], options[:limit] - 1)
       if ids.size > 0
         results = Soulmate.redis.hmget(database, *ids)
         results = results.reject{ |r| r.nil? } # handle cached results for ids which have since been deleted

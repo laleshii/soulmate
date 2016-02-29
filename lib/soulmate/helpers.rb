@@ -3,10 +3,15 @@
 module Soulmate
   module Helpers
 
-    def prefixes_for_phrase(phrase)
-      words = normalize(phrase).split(' ').reject do |w|
-        Soulmate.stop_words.include?(w)
+    def prefixes_for_phrase(phrase, use_phrase = false)
+      words = if use_phrase
+        [phrase]
+      else
+        normalize(phrase).split(' ').reject do |w|
+          Soulmate.stop_words.include?(w)
+        end
       end
+
       words.map do |w|
         (Soulmate.min_complete-1..(w.length-1)).map{ |l| w[0..l] }
       end.flatten.uniq
